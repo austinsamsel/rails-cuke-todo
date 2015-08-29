@@ -1,0 +1,9 @@
+<%= link_to "Add new task", new_task_path %>
+
+<% for task in @tasks %>
+  <li class="<%= task.completed == true ? "completed" : "" %>">
+    <%= task.name, html:{ class: "btn"} %>
+    • <%= link_to 'Edit', edit_task_path(task) %>
+    • <%= link_to 'Delete', task, method: :delete, data: { confirm: 'Are you sure?' } %>
+  </li>
+<% end %>
