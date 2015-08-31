@@ -8,7 +8,7 @@ Create a new app
 
 	$ rails new todos-tdd-cucumber --skip-test-unit
 
-Add Cucumber to your Gemfile. We'll include database_cleaner, which comes highly recommended as per (cucumber docs)[https://github.com/cucumber/cucumber-rails]
+Add Cucumber to your Gemfile. We'll include database_cleaner, which comes highly recommended as per [cucumber docs](https://github.com/cucumber/cucumber-rails)
 
 	group :test do
 	  gem 'cucumber-rails', require: false
