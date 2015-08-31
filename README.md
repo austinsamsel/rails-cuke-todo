@@ -1,6 +1,6 @@
 # Cucumber BDD Tutorial: Rails Todo App
 
-This is a "getting started" with Cucumber and BDD testing in rails. We're literally jumping straight into it. I'm assuming you've already read up on some testing concepts and you've found your way here in order to understand what a workflow with Cucumber might look like and how we think about problems along the way.
+This is a "getting started" with Cucumber and BDD testing in rails. We're literally jumping straight into it. I'm assuming you've already read up on some testing concepts and you've found your way here in order to understand what a workflow with Cucumber might look like and how we think about problems along the way. If you like, you can grab the finished code from (github)[https://github.com/austinsamsel/rails-cuke-todo].
 
 ### Step 1 - Set up.
 
@@ -25,9 +25,7 @@ This gives us a new directory called `features` which is where we'll write tests
 
 ### Step 2 - Create first feature: Add a Task.
 
-Outside in... Think like user... etc.
-
-Create the feature. Using (Gherkin)[https://github.com/cucumber/cucumber/wiki/Gherkin] - an easily readable language that works as both documentation and as tests. Your clients can read it and you can write it together. Even if you're not working with a client (or a client that wants to read it), its still worthwhile to use it forces you to "think like the user" as you write your features. So rather than mapping out your database and building your models, you'll develop your features with an "outside in" approach.
+Create the feature. Using (Gherkin)[https://github.com/cucumber/cucumber/wiki/Gherkin] - an easy to read syntax that works as both documentation and as tests. Your clients can read it and you can write it together. Even if you're not working with a client (or a client that wants to read it), its still worthwhile to use it because it forces you to "think like the user" as you write your features. Rather than mapping out your database and building your models, you'll develop your features with an "outside in" approach, starting from the homepage, and working with what you would see in the browser.
 
 	$ touch features/todos.feature
 
@@ -125,8 +123,6 @@ This will also give us the view we need as well at `app/views/tasks/home.html.er
 When we run cucumber again, our first step passes! Now our next step is pending. So let's write the code for that.
 
 Now we need to write the code for our next feature. We want to go to a page to add a new task. So we'll need a link users can click. We'll update the argument so its human readable, the_link and reference it in the code.
-
-YOU CAN GET THESE METHODS HERE::: LINK
 
 	Given(/^I go to "(.*?)"$/) do |the_link|
 	  click_link the_link
@@ -231,7 +227,7 @@ Then we get...
 
 	Unable to find field "Task Field" (Capybara::ElementNotFound)
 
-Capybara is having trouble finding the field for which we'd like to add in the name of our task. It's time to take a second look at our original step definition and enter a revision. If you run your rails server and inspect the source code, our rails form field looks like this: `<input class="string optional" type="text" name="task[name]" id="task_name" />` Cucumber is able to find the field by name or ID. So let's update our feature with the id as the form field identifer:
+Capybara is having trouble finding the field for which we'd like to add in the name of our task. It's time to take a second look at our original step definition and enter a revision. If you run your rails server and inspect the source code, our rails form field looks like this: `<input class="string optional" type="text" name="task[name]" id="task_name" />` Cucumber is able to find the field by name or ID. So let's update our feature with the id as the form field identifier:
 
 Our step definition passes.
 
@@ -318,7 +314,7 @@ Then all our tests pass.
 
 What happens when the user does something weird? Do we want users to create empty tasks? No. So let's test to make sure that invalid tasks are not posted.
 
-Let's write a feature
+Let's write a feature:
 
 	#features/todos.feature
 	...
@@ -444,6 +440,8 @@ This will find the first "Edit" link on the page, which will be associated with 
 
 We'll add an edit link into our view.
 
+	#app/views/tasks/home.html.erb
+	...
 	<% for task in @tasks %>
 	  <li><%= task.name %> • <%= link_to 'Edit', edit_task_path(task) %></li>
 	<% end %>
@@ -454,8 +452,11 @@ Then Cucumber tells us we don't have a controller action:
 
 We'll add the action to our tasks controller:
 
+	#app/controllers/tasks_controller.rb
+
 	def edit
 	end
+
 
 Now we're missing our view
 
@@ -477,6 +478,8 @@ Cucumber:
 
 All we have is a blank page. Its time to add in a form to edit the task on our edit page. It's the same form as on the new view, except with a new field to mark todos as completed.
 
+	#app/views/tasks/edit.html.erb
+
 	<%= simple_form_for(@task) do |f| %>
 	  <%= f.input :name %>
 	  <%= f.input :completed, as: :boolean, checked_value: true, unchecked_value: false %>
@@ -489,6 +492,7 @@ We get:
 
 There's nothing in the controller to help rails find the task. So let's update the edit method:
 
+	#app/controllers/task_controller.rb
 	def edit
 	  @task = Task.find(params[:id])
 	end
@@ -499,6 +503,8 @@ Cucumber tells us:
 
 Let's add an update action to our tasks controller.
 
+	#app/controllers/task_controller.rb
+
 	def update
 	end
 
@@ -507,6 +513,8 @@ Cucumber says:
 	Missing template tasks/update, application/update with {:locale=>[:en], :formats=>[:html], :variants=>[], :handlers=>[:erb, :builder, :raw, :ruby, :coffee, :jbuilder]}. Searched in:
 
 We don't want to create a view for update... so let's try updating the action to include some rerouting... After a successful update we want to go to the home page and if there's been an error, we want to stay on the edit page.
+
+	#app/controllers/task_controller.rb
 
 	def update
 	  if @task.update
@@ -517,6 +525,8 @@ We don't want to create a view for update... so let's try updating the action to
 	end
 
 One more problem, rails can't find the task we're trying to update... so let's copy over the same find code from the edit action...
+
+	#app/controllers/task_controller.rb
 
 	def update
 	  @task = Task.find(params[:id])
@@ -533,11 +543,15 @@ And now...
 
 We need to fix our strong parameters in our private task_params method.
 
+	#app/controllers/task_controller.rb
+
 	def task_params
 	  params.require(:task).permit(:name, :completed)
 	end
 
 We also need to pass our params into the update method.
+
+	#app/controllers/task_controller.rb
 
 	def update
 	  @task = Task.find(params[:id])
@@ -554,11 +568,15 @@ The step passes. Before we go on, let's refactor the code so we aren't repeating
 
 Then create a new private method:
 
+	#app/controllers/task_controller.rb
+
 	def find_task
       @task = Task.find(params[:id])
     end
 
 And at the top of our controller we'll call our new method with a before_action hook:
+
+	#app/controllers/task_controller.rb
 
 	before_action :find_task, only: [:edit, :update]
 
@@ -574,15 +592,19 @@ This code checks if our list item has the css class `.completed`. The argument h
 
 Let's update the home page view with some logic that determines if the task is marked as completed, and if it is, to add the class, "completed"
 
+	#app/views/tasks/home.html.erb
+
 	<li class="<%= task.completed == true ? "completed" : "" %>"><%= task.name %> • <%= link_to 'Edit', edit_task_path(task) %></li>
 
-You may want to move this logic out into a helper method, but for now, this will adequeately accomplish what we want.
+You may want to move this logic out into a helper method, but for now, this will adequately accomplish what we want.
 
 Then let's add a new CSS file:
 
 	$ touch app/assets/stylesheets/tasks.css
 
 And add the code:
+
+	#app/assets/stylesheets/tasks.css
 
 	li.completed{
 	  text-decoration: line-through;
@@ -618,6 +640,8 @@ Cucumber tells us:
 
 Let's add a delete link to the Home page view.
 
+	#app/views/tasks/new.html.erb
+
 	<% for task in @tasks %>
 	  <li class="<%# task.completed == true ? "completed" : "" %>">
 	    <%= task.name %>
@@ -632,6 +656,8 @@ Cucumber tells us:
 
 Let's add the necessary controller action:
 
+	#app/controllers/task_controller.rb
+
 	def destroy
 	end
 
@@ -641,11 +667,15 @@ Cucumber tells us:
 
 Let's fill out the action with:
 
+	#app/controllers/task_controller.rb
+
 	def destroy
 	  @task.destroy
 	end
 
 And also include the destroy action in the before_action hook:
+
+	#app/controllers/task_controller.rb
 
 	before_action :find_task, only: [:edit, :update, :destroy]
 
@@ -654,6 +684,8 @@ We keep getting the same message:
 	 Missing template tasks/destroy, application/destroy with {:locale=>[:en], :formats=>[:html], :variants=>[], :handlers=>[:erb, :builder, :raw, :ruby, :coffee, :jbuilder]}. Searched in:
 
 So let's add a redirect
+
+	#app/controllers/task_controller.rb
 
 	def destroy
 	  @task.destroy
@@ -673,3 +705,8 @@ This is similar to when we were first checking to see if the task would appear o
 Cucumber tells us:
 
 	And I press "Delete" associated with "My First Todo"
+
+
+Nice! We created a Todo app using Cucumber that allows us to create tasks, validates against invalid tasks, mark tasks as complete, and delete tasks. This this type of functionality is pretty common and can be applied in a lot of scenarios.
+
+If you have any questions, or notice anything that can be improved, please let me know!
