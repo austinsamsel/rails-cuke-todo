@@ -1,4 +1,4 @@
-# Cucumber BDD Tutorial: Rails Todo App
+# Getting Started with Cucumber on Rails
 
 This is a "getting started" with Cucumber and BDD testing in rails. We're literally jumping straight into it. I'm assuming you've already read up on some testing concepts and you've found your way here in order to understand what a workflow with Cucumber might look like and how we think about problems along the way. If you like, you can grab the finished code from (github)[https://github.com/austinsamsel/rails-cuke-todo].
 
